@@ -1,7 +1,7 @@
 import asyncio
 import json
 from .fetcher import fetch_final_url, extract_params
-from .utils import build_final_suffix
+from .utils import build_final_suffix, extract_full_query
 from .models import RunLog
 
 
@@ -12,46 +12,62 @@ def run_mapping(mapping):
     try:
         print("====== RUN_MAPPING START ======")
         print("CONFIG:", mapping.config_name)
-        print("RAW PARAMS:", repr(mapping.params), type(mapping.params))
         print("TRACKING URL:", mapping.tracking_url)
+        print("EXTRACT ALL PARAMS:", mapping.extract_all_params)
 
         result = asyncio.run(fetch_final_url(mapping.tracking_url))
         final_url = result["final_url"]
 
         print("FINAL URL:", final_url)
 
-        params = mapping.params
+        # =====================================================
+        # 🔥 CASE 1: Extract ALL params
+        # =====================================================
+        if mapping.extract_all_params:
+            final_suffix = extract_full_query(final_url)
 
-        if isinstance(params, str):
-            params = params.strip()
-            print("PARAM STRING AFTER STRIP:", repr(params))
-            params = json.loads(params)
+            if not final_suffix:
+                raise Exception("No query params found in final URL")
 
-        print("PARAMS AFTER JSON LOAD:", params, type(params))
+            extracted_value = final_suffix
 
-        if not isinstance(params, list):
-            raise Exception("Params is not a list")
+        # =====================================================
+        # 🔒 CASE 2: Extract SELECTED params (existing behavior)
+        # =====================================================
+        else:
+            params = mapping.params
+            print("RAW PARAMS:", repr(params), type(params))
 
-        extracted_map = extract_params(final_url, params)
+            if isinstance(params, str):
+                params = json.loads(params)
 
-        print("EXTRACTED MAP:", extracted_map)
+            if not isinstance(params, list):
+                raise Exception("Params must be a list")
 
-        if not extracted_map:
-            raise Exception("No params extracted")
+            extracted_map = extract_params(final_url, params)
 
-        final_suffix = build_final_suffix(extracted_map)
+            print("EXTRACTED MAP:", extracted_map)
 
+            if not extracted_map:
+                raise Exception("No params extracted")
+
+            final_suffix = build_final_suffix(extracted_map)
+            extracted_value = str(extracted_map)
+
+        # =====================================================
+        # SAVE
+        # =====================================================
         mapping.last_suffix = final_suffix
         mapping.save(update_fields=["last_suffix", "updated_at"])
 
         RunLog.objects.create(
             mapping=mapping,
             final_url=final_url,
-            extracted_value=str(extracted_map),
+            extracted_value=extracted_value,
             success=True,
         )
 
-        print("SUCCESS — SUFFIX:", final_suffix)
+        print("SUCCESS — FINAL SUFFIX:", final_suffix)
 
     except Exception as e:
         print("ERROR:", str(e))

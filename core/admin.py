@@ -20,16 +20,27 @@ class MappingAdmin(admin.ModelAdmin):
     list_display = (
         "config_name",
         "campaign_ids",
+        "extract_all_params",
         "tracking_url",
         "updated_at",
     )
-
-    actions = ["run_selected_mappings"]
 
     readonly_fields = (
         "last_suffix",
         "updated_at",
     )
+
+    fields = (
+        "config_name",
+        "campaign_ids",
+        "tracking_url",
+        "extract_all_params",
+        "params",
+        "last_suffix",
+        "updated_at",
+    )
+
+    actions = ["run_selected_mappings"]
 
     def run_selected_mappings(self, request, queryset):
         for mapping in queryset:

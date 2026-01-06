@@ -22,16 +22,21 @@ class Mapping(models.Model):
     """
     config_name = models.CharField(max_length=200, unique=True)
 
-    # comma-separated campaign IDs
     campaign_ids = models.TextField(
-    default="",
-    help_text="Comma separated Google Ads campaign IDs"
-)
+        default="",
+        help_text="Comma separated Google Ads campaign IDs"
+    )
 
     tracking_url = models.URLField()
 
-    # multiple params to extract
-    params = models.JSONField(default=list)
+    # Selected params (used when extract_all_params = False)
+    params = models.JSONField(default=list, blank=True)
+
+    # 🔥 NEW FLAG
+    extract_all_params = models.BooleanField(
+        default=False,
+        help_text="If enabled, extract ALL query params from final redirect URL"
+    )
 
     last_suffix = models.TextField(blank=True, null=True)
     updated_at = models.DateTimeField(auto_now=True)

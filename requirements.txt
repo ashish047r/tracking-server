@@ -1,0 +1,6 @@
+Django>=4.2
+djangorestframework
+httpx[http2]
+uvicorn
+python-dotenv
+django-crontab        # optional, for simple cron scheduling

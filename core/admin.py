@@ -5,12 +5,7 @@ from .services import run_mapping
 
 @admin.register(ScriptAuth)
 class ScriptAuthAdmin(admin.ModelAdmin):
-    list_display = (
-        "name",
-        "api_key",
-        "is_active",
-        "created_at",
-    )
+    list_display = ("name", "api_key", "is_active", "created_at")
     search_fields = ("name", "api_key")
     list_filter = ("is_active",)
 
@@ -19,20 +14,15 @@ class ScriptAuthAdmin(admin.ModelAdmin):
 class MappingAdmin(admin.ModelAdmin):
     list_display = (
         "config_name",
-        "campaign_ids",
         "extract_all_params",
         "tracking_url",
         "updated_at",
     )
 
-    readonly_fields = (
-        "last_suffix",
-        "updated_at",
-    )
+    readonly_fields = ("last_suffix", "updated_at")
 
     fields = (
         "config_name",
-        "campaign_ids",
         "tracking_url",
         "extract_all_params",
         "params",
@@ -46,10 +36,7 @@ class MappingAdmin(admin.ModelAdmin):
         for mapping in queryset:
             try:
                 run_mapping(mapping)
-                self.message_user(
-                    request,
-                    f"Successfully ran {mapping.config_name}"
-                )
+                self.message_user(request, f"Successfully ran {mapping.config_name}")
             except Exception as e:
                 self.message_user(
                     request,
@@ -62,18 +49,6 @@ class MappingAdmin(admin.ModelAdmin):
 
 @admin.register(RunLog)
 class RunLogAdmin(admin.ModelAdmin):
-    list_display = (
-        "mapping",
-        "time",
-        "success",
-        "extracted_value",
-    )
-
-    readonly_fields = (
-        "final_url",
-        "extracted_value",
-        "error_message",
-        "time",
-    )
-
+    list_display = ("mapping", "time", "success", "extracted_value")
+    readonly_fields = ("final_url", "extracted_value", "error_message", "time")
     list_filter = ("success",)

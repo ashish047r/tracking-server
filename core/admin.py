@@ -6,7 +6,6 @@ from .services import run_mapping
 @admin.register(ScriptAuth)
 class ScriptAuthAdmin(admin.ModelAdmin):
     list_display = ("name", "api_key", "is_active", "created_at")
-    search_fields = ("name", "api_key")
     list_filter = ("is_active",)
 
 
@@ -15,18 +14,22 @@ class MappingAdmin(admin.ModelAdmin):
     list_display = (
         "config_name",
         "extract_all_params",
-        "tracking_url",
+        "window_ms",
+        "frequency",
         "updated_at",
     )
 
-    readonly_fields = ("last_suffix", "updated_at")
+    readonly_fields = ("last_suffix", "last_run_at", "updated_at")
 
     fields = (
         "config_name",
         "tracking_url",
         "extract_all_params",
         "params",
+        "window_ms",
+        "frequency",
         "last_suffix",
+        "last_run_at",
         "updated_at",
     )
 
@@ -49,6 +52,6 @@ class MappingAdmin(admin.ModelAdmin):
 
 @admin.register(RunLog)
 class RunLogAdmin(admin.ModelAdmin):
-    list_display = ("mapping", "time", "success", "extracted_value")
+    list_display = ("mapping", "time", "success")
     readonly_fields = ("final_url", "extracted_value", "error_message", "time")
     list_filter = ("success",)

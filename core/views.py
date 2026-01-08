@@ -2,7 +2,6 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework import status
 
 from .models import Mapping, ScriptAuth
 from .services import run_mapping
@@ -49,17 +48,3 @@ def get_suffix(request):
 
     except Exception as e:
         return JsonResponse({"success": False, "error": str(e)}, status=200)
-
-
-@api_view(["POST"])
-def run_single(request):
-    config_name = request.data.get("config_name")
-    if not config_name:
-        return Response({"success": False}, status=400)
-
-    try:
-        mapping = Mapping.objects.get(config_name=config_name)
-        run_mapping(mapping)
-        return Response({"success": True})
-    except Mapping.DoesNotExist:
-        return Response({"success": False}, status=404)
